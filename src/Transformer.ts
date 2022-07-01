@@ -24,7 +24,7 @@ export class Transformer {
       const JSONmodel = value.toJSON();
       const excludedProperties = this.storage.getExcludeProperties(modelName);
       excludedProperties?.forEach((v) => {
-        delete JSONmodel[v.propertyName];
+        removeKeys(JSONmodel, v.propertyName);
       });
       if (excludeMongooseId) {
         delete JSONmodel._id;
@@ -74,4 +74,30 @@ export class Transformer {
 
     return value;
   }
+}
+
+function removeKeys(obj, keys){
+    var index;
+    for (var prop in obj) {
+        // important check that this is objects own property
+        // not from prototype prop inherited
+        if(obj.hasOwnProperty(prop)){
+            switch(typeof(obj[prop])){
+                case 'string':
+                    index = keys.indexOf(prop);
+                    if(index > -1){
+                        delete obj[prop];
+                    }
+                    break;
+                case 'object':
+                    index = keys.indexOf(prop);
+                    if(index > -1){
+                        delete obj[prop];
+                    }else{
+                        removeKeys(obj[prop], keys);
+                    }
+                    break;
+            }
+        }
+    }
 }
